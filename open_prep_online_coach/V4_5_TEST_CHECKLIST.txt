@@ -1,0 +1,19 @@
+OPEN PREP V4.5 — NUTRITION TEST CHECKLIST
+
+[ ] Open the app. Sidebar says V4.5.
+[ ] Open Nutrition. Click Run counter self-test. It should say PASSED.
+[ ] Choose today's date. Note the existing total (if any).
+[ ] Click Enter meal manually; enter 500 kcal, 30g protein, 50g carbs, 20g fat.
+[ ] Click Add to Daily Counter. The calorie total increases by 500 immediately.
+[ ] Add a second meal with 700 kcal. The total increases by another 700.
+[ ] Edit the first meal from 500 to 600. The total increases by 100.
+[ ] Delete the second meal. The total decreases by 700.
+[ ] Refresh the page. Totals remain unchanged.
+[ ] Set calorie/protein/carb/fat goals and save. Goal bars match the totals.
+[ ] Try Estimate with AI. Confirm the estimate appears for review, then add it.
+[ ] Sign in to Supabase and check cloud status for errors.
+[ ] Open the app on your phone, sign in, and verify the same date/meal totals.
+[ ] Delete a meal on one device, sync, and verify it stays deleted on the other.
+
+If any step fails, record: device, date, step, actual behavior, cloud status,
+any browser console errors, and whether the meal appears in Saved meals.

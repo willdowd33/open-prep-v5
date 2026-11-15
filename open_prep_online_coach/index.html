@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<meta name="theme-color" content="#141526">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Open Prep">
+
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open Prep V5.0 — Training & AI Coach</title>
+<style>
+:root{--bg:#10151d;--panel:#192230;--panel2:#202c3c;--text:#edf3fa;--muted:#a9b7c8;--accent:#78d5bd;--line:#344255;--warn:#f0bd72}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:26px 20px 18px;background:linear-gradient(120deg,#172b36,#182131);border-bottom:1px solid var(--line)}
+main{max-width:1100px;margin:auto;padding:20px}h1{margin:0 0 5px;font-size:clamp(26px,4vw,38px)}h2{font-size:20px;margin:0 0 12px}h3{font-size:16px;margin:18px 0 6px;color:var(--accent)}p{margin:6px 0}.sub,.muted{color:var(--muted)}.tag{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:3px 9px;color:var(--muted);font-size:12px;margin:4px 4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.field{display:flex;flex-direction:column;gap:4px;min-width:120px;flex:1}
+label{font-size:12px;color:var(--muted)}input,select,textarea,button{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
+textarea{min-height:76px;resize:vertical}button{cursor:pointer;width:auto;background:#285849;border-color:#397c69;font-weight:650}button.secondary{background:var(--panel2);border-color:var(--line)}button.danger{background:#53343a;border-color:#80505a}
+.day{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--panel);cursor:pointer;text-align:left;width:100%}.day.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}.day strong{display:block}.day small{color:var(--muted)}
+ul{padding-left:20px;margin:7px 0}li{margin:4px 0}.pill{color:var(--accent);font-size:12px;font-weight:700;letter-spacing:.05em}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.stat{font-size:25px;font-weight:750}.progress{height:8px;background:var(--panel2);border-radius:9px;overflow:hidden}.progress>div{height:100%;background:var(--accent)}
+.notice{border-left:3px solid var(--warn);padding:9px 12px;background:#28251f;border-radius:5px;color:#f5dfbf}
+table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{color:var(--muted)}
+footer{color:var(--muted);font-size:12px;padding:20px;text-align:center}
+@media(max-width:600px){main{padding:12px}.panel{padding:13px}button,.day,input,select{min-height:44px}.grid{grid-template-columns:1fr}.controls .field{min-width:100%}textarea{min-height:110px}header main{padding:0 12px!important}}
+
+/* V2 interface */
+:root{--bg:#0b111a;--panel:#141f2b;--panel2:#1b2b3b;--accent:#63e0bd;--line:#304253}
+header{background:linear-gradient(115deg,#123a3b,#101c2c);padding:30px 20px}
+main{max-width:1180px}.panel{border-radius:18px;box-shadow:0 8px 25px #0002;margin:12px 0;padding:20px}
+button{transition:filter .15s,transform .15s}button:hover{filter:brightness(1.15)}button:active{transform:scale(.98)}
+input:focus,select:focus,textarea:focus{outline:2px solid #63e0bd66;outline-offset:1px}
+.panel>h2{letter-spacing:-.02em}details.panel{padding:0;overflow:hidden}details.panel>summary{padding:19px 20px;font-weight:750;font-size:19px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}details.panel>summary::-webkit-details-marker{display:none}details.panel>summary:after{content:'⌄';color:var(--accent);font-size:24px}details.panel[open]>summary:after{content:'⌃'}details.panel>.section-body{padding:0 20px 20px}
+details.subsection{background:var(--panel2);border:1px solid var(--line);border-radius:11px;margin:9px 0;padding:0}details.subsection summary{cursor:pointer;padding:11px 13px;font-weight:700;color:var(--accent)}details.subsection p{padding:0 13px 13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.nav{display:flex;gap:8px;overflow:auto;padding:12px 0;position:sticky;top:0;background:var(--bg);z-index:5}.nav a{flex:none;text-decoration:none;color:var(--text);padding:8px 12px;border:1px solid var(--line);background:var(--panel);border-radius:99px;font-size:13px}
+.macro-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.macro{background:var(--panel2);padding:12px;border-radius:12px;text-align:center}.macro strong{display:block;font-size:22px}.macro small{color:var(--muted)}
+.meal{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:12px 0;align-items:center}.meal button{flex:none}
+.proposal{border:1px solid var(--accent);border-radius:12px;padding:14px;margin:12px 0;background:#12332e}
+@media(max-width:600px){details.panel>summary{padding:15px}details.panel>.section-body{padding:0 13px 15px}.macro strong{font-size:17px}.nav{margin:0 -12px;padding:10px 12px}}
+/* V3 polish */
+:root{--bg:#080e16;--panel:#111e2b;--panel2:#1b2e3d;--line:#2b4353;--accent:#7cf1c9;--muted:#b4c3d0}
+body{background:radial-gradient(ellipse at 90% 0%,#153746 0%,transparent 38%),var(--bg)}
+header{background:linear-gradient(125deg,#123d42,#102435 62%,#18233a);border-bottom:1px solid #45636b;position:relative}
+header h1{font-size:clamp(35px,6vw,60px);font-weight:900;letter-spacing:-.06em;line-height:1.05}
+header .pill{letter-spacing:.18em}header .sub{font-size:14px;max-width:680px}
+.panel{background:linear-gradient(145deg,#152434,#101b28);box-shadow:0 12px 36px #0004;border-color:#2d4555}
+details.panel[open]>summary{border-bottom:1px solid #ffffff13;margin-bottom:12px}
+details.panel>summary:hover{background:#ffffff07}
+.nav{backdrop-filter:blur(18px);background:#09141be9;border-bottom:1px solid #ffffff10}
+.nav a{font-weight:650}.nav a:hover{border-color:var(--accent);color:var(--accent)}
+button:not(.secondary):not(.danger){background:linear-gradient(115deg,#236f5e,#1c554e);border-color:#55a68e}
+.macro{background:linear-gradient(135deg,#203b47,#172a39);border:1px solid #345461}
+.macro strong{color:#9ff5d7;font-variant-numeric:tabular-nums}
+.verse-panel{margin-top:18px;max-width:760px;padding:13px 17px;background:#ffffff0a;border:1px solid #ffffff26;border-radius:14px}
+.verse-label{font-size:10px;letter-spacing:.17em;color:#9de3cf;font-weight:800}
+.verse-text{font-size:clamp(14px,2.3vw,18px);font-weight:520;line-height:1.5;margin:6px 0}
+.verse-ref{color:#afc8d5;font-size:12px}
+@media(min-width:900px){.hero-row{display:flex;align-items:center;justify-content:space-between;gap:30px}.hero-row .verse-panel{max-width:440px;margin-top:0}}
+@media(max-width:600px){header{padding:23px 12px}.panel{border-radius:15px}.macro-row{grid-template-columns:repeat(2,1fr)}}
+
+/* V4: sidebar, dense dashboard, journal and nutrition goals */
+body{background:radial-gradient(circle at 75% -10%,#153e43 0%,transparent 32%),#08121b}
+.menu-toggle{position:sticky;top:12px;z-index:31;margin:8px 0 16px;border:1px solid #4b746e!important;box-shadow:0 4px 24px #0007}
+.side-nav{position:fixed;top:0;bottom:0;left:0;width:min(310px,85vw);background:#0c1a25;border-right:1px solid #34545b;z-index:51;padding:22px 17px;display:flex;flex-direction:column;gap:7px;transform:translateX(-105%);transition:transform .23s;box-shadow:14px 0 45px #0007;overflow:auto}
+.side-nav.open{transform:translateX(0)}.side-nav a{color:#d4e9e7;text-decoration:none;padding:13px 12px;border-radius:10px;border:1px solid transparent}.side-nav a:hover{background:#1c3540;border-color:#416b67}.side-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.side-shade{position:fixed;inset:0;background:#0009;z-index:50}
+.logbook-list{display:grid;gap:10px;margin:14px 0}.log-entry{border:1px solid #355361;border-radius:12px;background:#132836;padding:13px}.log-entry strong{color:#a1f0d4}.log-meta{color:#b1c9d2;font-size:12px;margin:5px 0}.goal-progress{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.goal-tile{padding:12px;border:1px solid #31535d;background:#162b39;border-radius:12px}.goal-tile b{font-size:18px;color:#a6f5d7}.goal-tile .progress{margin-top:7px}
+@media(max-width:550px){.goal-progress{grid-template-columns:1fr}.log-entry{padding:10px}header h1{font-size:40px}}
+/* V5.0 rebuilt nutrition */
+.nutrition-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}
+.nutrition-hint{background:#133a36;border:1px solid #397c6d;padding:12px;border-radius:12px;color:#d1f4e9;margin:12px 0}
+.nutrition-review{background:#152e37;border:1px solid #4a9a83;border-radius:14px;padding:17px;margin:14px 0;box-shadow:0 8px 25px #0003}
+.nutrition-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px;color:#a9c4ca;font-size:12px;flex-wrap:wrap}
+#totalcal{font-size:clamp(24px,4vw,36px);color:#b0ffdb}.macro{min-width:0}
+#mealstatus{min-height:24px}.meal{align-items:flex-start}.meal .actions{margin-top:0}
+@media(max-width:600px){.nutrition-toolbar{grid-template-columns:1fr}.meal{flex-direction:column}.meal .actions{width:100%}}
+/* V5.0 — clean indigo / warm neutral makeover */
+:root{--bg:#0c1020;--panel:#171d30;--panel2:#232b42;--text:#f4f3f8;--muted:#b4b9ce;--accent:#b9a4ff;--line:#38425d;--warn:#f4c58a}
+body{background:radial-gradient(ellipse at 75% -15%,#292548 0%,transparent 45%),#0c1020}
+header{background:linear-gradient(125deg,#25203e,#171d32 65%,#182339);border-color:#4d466a}
+header h1{letter-spacing:-.055em}header .pill,.verse-label{color:#d5c4ff}
+.panel{background:linear-gradient(145deg,#1a2136,#151b2c);border-color:#38415c;box-shadow:0 12px 34px #0003}
+button:not(.secondary):not(.danger){background:linear-gradient(120deg,#6a57b8,#5546a0);border:1px solid #8e7ad1;color:#fff}
+button.secondary{background:#252d43;border-color:#45516e;color:#f4f3f8}
+button:hover{filter:brightness(1.12)}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #c9b6ff;outline-offset:2px}
+.macro{background:linear-gradient(135deg,#282a49,#212841);border:1px solid #4a4b77}
+.macro strong,#totalcal,.goal-tile b{color:#e4d7ff}
+.nutrition-hint{background:#29243e;border:1px solid #68558f;color:#e7defc}
+.nutrition-review{background:#222640;border:1px solid #8171b2}
+.side-nav{background:#161b2c;border-color:#4b466e}.side-nav a:hover{background:#2a2a49;border-color:#72639d}
+.log-entry,.goal-tile{background:#222a41;border-color:#434d6e}.log-entry strong{color:#d5c6ff}
+.verse-panel{border-color:#655a82;background:#ffffff0a}.verse-ref{color:#c2b9d9}
+.counter-heading{color:#d7c9ff;letter-spacing:.09em;font-size:12px;margin:18px 0 6px}
+#saveMeal{font-size:16px;padding:13px 20px;box-shadow:0 4px 15px #0004}
+#mealstatus,#nutritionSavedStatus{font-weight:600}
+@media(max-width:600px){.macro-row{grid-template-columns:repeat(2,minmax(0,1fr))}.nutrition-review .actions button{width:100%}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script>
+/* Open Prep V4.5: deterministic nutrition state operations; no AI or DOM dependencies. */
+(function(root,factory){
+ const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;
+ root.NutritionCore=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+ const fields=['calories','protein','carbs','fat'];
+ const num=v=>{const n=Number(v);return Number.isFinite(n)&&n>=0?n:0;};
+ function day(d){return Array.isArray(d)?d:[];}
+ function visible(data,key){return day(data?.[key]).filter(m=>m&&!m.deleted);}
+ function totals(data,key){const t={calories:0,protein:0,carbs:0,fat:0};for(const meal of visible(data,key)){for(const k of fields)t[k]+=num(meal[k]);}return t;}
+ function put(data,key,meal){const out={...data};const entries=day(out[key]).slice();const idx=entries.findIndex(x=>x?.id===meal.id);if(idx<0)entries.push(meal);else entries[idx]=meal;out[key]=entries;return out;}
+ function remove(data,key,id,when){const old=day(data?.[key]).find(x=>x?.id===id);if(!old)return data;return put(data,key,{...old,deleted:true,updated_at:when||new Date().toISOString()});}
+ function merge(local,remote){const result={};for(const key of new Set([...Object.keys(remote||{}),...Object.keys(local||{})])){
+  const entries=new Map();for(const m of [...day(remote?.[key]),...day(local?.[key])]){
+   if(!m||!m.id)continue;const old=entries.get(m.id);
+   // Legacy entries with no timestamp prefer the local copy; otherwise latest timestamp wins.
+   if(!old||String(m.updated_at||'')>=String(old.updated_at||''))entries.set(m.id,m);
+  }result[key]=[...entries.values()];
+ }return result;}
+ function valid(meal){return fields.every(k=>Number.isFinite(Number(meal[k]))&&Number(meal[k])>=0&&Number(meal[k])<=10000);}
+ return {fields,totals,visible,put,remove,merge,valid};
+});
+
+</script>
+
+<style>
+:root{--accent:#b6a6ff!important;--accent2:#91d4ff!important}
+body{background:radial-gradient(ellipse at 85% 0%,rgba(117,96,190,.16),transparent 48%),#0e1220!important;color:#edf0ff}
+.panel{border:1px solid rgba(168,181,221,.16)!important;box-shadow:0 12px 32px rgba(0,0,0,.12);border-radius:18px!important}
+.panel summary{font-size:1.07rem;letter-spacing:.01em}
+.v5-quick{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0 20px}
+.v5-quick a{background:#232940;border:1px solid #424965;border-radius:12px;color:#e7e9ff;padding:12px 15px;text-decoration:none;font-weight:700}
+.v5-quick a:hover{background:#37365b}
+.v5-review{padding:16px;background:#1b2539;border:1px solid #59618b;border-radius:16px;margin-top:14px}
+.v5-chat-stream{min-height:160px;max-height:440px;overflow:auto;background:#131b2c;border:1px solid #37425b;border-radius:15px;padding:15px;margin:14px 0;display:flex;flex-direction:column;gap:10px}
+.v5-bubble{padding:11px 14px;border-radius:13px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:90%}
+.v5-bubble.user{align-self:flex-end;background:#37345c}.v5-bubble.assistant{align-self:flex-start;background:#27374b}
+.v5-list{display:grid;gap:9px}.v5-list-item{border:1px solid #3d4962;padding:12px;border-radius:12px;background:#182438}
+.v5-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.v5-metric{padding:14px;border:1px solid #44506a;background:#1c273c;border-radius:14px}
+.v5-metric b{display:block;font-size:1.5rem;margin-top:6px}
+@media(max-width:600px){.v5-quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.v5-quick a{text-align:center;padding:10px 6px;font-size:.85rem}}
+</style>
+</head>
+<body>
+<header><main style="padding:0 20px">
+<div class="hero-row"><div>
+<div class="pill">YOUR TRAINING COMMAND CENTER · V5.0</div><h1>OPEN PREP<span style="color:var(--accent)">.</span></h1>
+<p class="sub">CrossFit • Strength • Olympic lifting • Running • AI performance & nutrition coach</p>
+<span class="tag">Nov 13, 2026 – Jan 21, 2027</span><span class="tag">6 training days</span><span class="tag">4 run days + optional 5th</span>
+</div><div class="verse-panel" aria-label="Daily Bible verse"><div class="verse-label">✦ DAILY SCRIPTURE</div><div class="verse-text" id="dailyVerse">Loading today's verse…</div><div class="verse-ref" id="dailyVerseRef"></div></div></div>
+</main></header>
+<main>
+<button id="menuToggle" class="menu-toggle secondary" aria-controls="sideNav" aria-expanded="false">☰ Menu</button>
+<div id="sideShade" class="side-shade" hidden></div><aside id="sideNav" class="side-nav" aria-label="Main menu"><div class="side-head"><b>OPEN PREP <span style="color:var(--accent)">V5.0</span></b><button class="secondary" id="menuClose">✕</button></div>
+<a href="#v5-ai-workout">✦ AI workout logger</a><a href="#v5-general-chat">◉ General AI chat</a><a href="#v5-recovery">♥ WHOOP recovery</a><a href="#dashboard-panel">◈ Dashboard</a><a href="#sessionpanel">▣ Today's workout</a><a href="#logbook">▤ Workout logbook</a><a href="#ai-coach">✦ AI performance coach</a><a href="#nutrition">◉ Nutrition coach</a><a href="#athlete-profile">♙ Athlete profile</a><a href="#editor">✎ Edit workouts</a><a href="#account-panel">☁ Cloud account</a></aside>
+
+<p id="v5-update-banner" class="muted" hidden role="status"></p>
+<section class="v5-quick" aria-label="V5 main navigation">
+ <a href="#dashboard-panel">⌂ Overview</a><a href="#v5-ai-workout">✦ Log a workout</a><a href="#nutrition">◉ Nutrition</a><a href="#v5-general-chat">✧ AI Chat</a><a href="#v5-recovery">♥ Recovery</a>
+</section>
+<details class="panel" id="v5-ai-workout" open><summary>✦ AI workout analysis & log</summary><div class="section-body">
+ <p class="muted">Describe a completed workout in your own words. The AI analyzes it and prepares a draft. <b>Nothing is logged until you approve.</b></p>
+ <div class="field"><label>WHAT DID YOU DO?</label><textarea id="v5-workout-input" rows="4" placeholder="5 rounds: 400m run, 15 thrusters at 95lb, 10 pull-ups. Time: 24:36"></textarea></div>
+ <div class="actions"><button id="v5-analyze">Analyze workout</button></div><p id="v5-workout-status" class="muted" aria-live="polite"></p>
+ <div id="v5-draft" hidden class="v5-review"><h3>Review before saving</h3><p id="v5-analysis"></p>
+ <div class="grid"><div class="field"><label>TITLE</label><input id="v5-title"></div><div class="field"><label>CATEGORY</label><select id="v5-category"><option>CrossFit</option><option>Running</option><option>Lifting</option><option>Biking</option><option>Rowing</option><option>Ski erg</option><option>Walking</option><option>Other</option></select></div>
+ <div class="field"><label>DATE</label><input id="v5-date" type="date"></div><div class="field"><label>DURATION / TIME</label><input id="v5-duration"></div><div class="field"><label>DISTANCE (MILES)</label><input id="v5-distance" type="number" min="0" step="any"></div><div class="field"><label>LOAD</label><input id="v5-load"></div></div>
+ <div class="field"><label>RESULT</label><input id="v5-result"></div><div class="field"><label>NOTES</label><textarea id="v5-notes"></textarea></div>
+ <div class="actions"><button id="v5-save-workout">✓ Approve & save workout</button><button id="v5-cancel-workout" class="secondary">Discard draft</button></div></div>
+ <h3>AI workout history</h3><div id="v5-workout-list" class="v5-list"></div></div></details>
+<details class="panel" id="v5-general-chat"><summary>✧ General AI coaching conversations</summary><div class="section-body">
+ <p class="muted">Discuss performance goals, programming, nutrition and recovery. This chat does not log workouts automatically.</p>
+ <div class="actions"><button id="v5-new-chat" class="secondary">+ New conversation</button><select id="v5-chat-picker" aria-label="Saved conversations"></select></div>
+ <div id="v5-chat-messages" class="v5-chat-stream" aria-live="polite"></div>
+ <div class="field"><label>MESSAGE</label><textarea id="v5-chat-input" rows="3" placeholder="How can I improve my 5K without sacrificing strength?"></textarea></div>
+ <div class="actions"><button id="v5-chat-send">Send to coach</button></div><p id="v5-chat-status" class="muted"></p></div></details>
+<details class="panel" id="v5-recovery"><summary>♥ WHOOP 4.0 recovery & health</summary><div class="section-body">
+ <p class="muted">Connect your WHOOP account for recovery, resting heart rate, HRV, sleep and workout strain. These are periodic WHOOP cloud readings, <b>not live heart-rate streaming.</b></p>
+ <div class="actions"><button id="v5-whoop-connect">Connect WHOOP</button><button id="v5-whoop-refresh" class="secondary">Refresh stats</button><button id="v5-whoop-disconnect" class="secondary">Disconnect</button></div>
+ <p id="v5-whoop-status" class="muted" aria-live="polite">Not connected.</p><div id="v5-whoop-stats" class="v5-metrics"></div>
+ <p class="muted">Live Bluetooth heart rate: WHOOP 4.0 can broadcast BLE, but iPhone Safari web apps cannot reliably connect directly. A native iOS companion is required for that feature.</p>
+ </div></details>
+
+<details class="panel" id="account-panel">
+<summary>Cloud account & sync</summary>
+<div class="section-body">
+<p class="muted">Create an account to sync workouts, logs, and athlete details between devices. Your Supabase project URL and publishable/anon key are public client credentials; database access is protected by the Row Level Security policy in the setup SQL.</p>
+<div class="grid">
+<div class="field"><label>SUPABASE PROJECT URL</label><input id="sburl" placeholder="https://your-project.supabase.co" autocomplete="url"></div>
+<div class="field"><label>SUPABASE PUBLISHABLE / ANON KEY</label><input id="sbkey" placeholder="sb_publishable_… or legacy anon key" autocomplete="off"></div>
+</div>
+<div class="actions"><button id="savecloudconfig">Save cloud settings</button></div>
+<div class="grid" style="margin-top:12px">
+<div class="field"><label>EMAIL</label><input id="accountemail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+<div class="field"><label>PASSWORD</label><input id="accountpassword" type="password" autocomplete="current-password" placeholder="At least 8 characters"></div>
+</div>
+<div class="actions"><button id="signup">Create account</button><button class="secondary" id="signin">Log in</button><button class="secondary" id="signout">Log out</button><button class="secondary" id="syncnow">Sync now</button></div>
+<p class="muted" id="cloudstatus" aria-live="polite">Cloud sync is not configured yet.</p>
+</div></details>
+<details class="panel" id="athlete-profile">
+<summary>Athlete profile</summary>
+<div class="section-body">
+<p class="muted">These details are saved with your account and included when you ask the AI coach for advice.</p>
+<div class="grid">
+<div class="field"><label>BACK SQUAT (LB)</label><input id="maxbacksquat" type="number" value="335"></div>
+<div class="field"><label>FRONT SQUAT (LB)</label><input id="maxfrontsquat" type="number" value="305"></div>
+<div class="field"><label>DEADLIFT (LB)</label><input id="maxdeadlift" type="number" value="445"></div>
+<div class="field"><label>BENCH PRESS (LB)</label><input id="maxbench" type="number" value="290"></div>
+<div class="field"><label>CLEAN & JERK (LB)</label><input id="maxcleanjerk" type="number" value="280"></div>
+<div class="field"><label>SNATCH (LB)</label><input id="maxsnatch" type="number" value="225"></div>
+<div class="field"><label>STRICT PRESS (LB)</label><input id="maxstrictpress" type="number" value="170"></div>
+<div class="field"><label>CHEST-TO-BAR UNBROKEN</label><input id="profilectb" type="number" value="40"></div>
+<div class="field"><label>ESTIMATED 5K</label><input id="profile5k" value="21:00"></div>
+<div class="field"><label>HALF MARATHON</label><input id="profilehalf" value="1:58:34"></div>
+<div class="field"><label>USUAL WEEKLY RUNNING (MILES)</label><input id="profilemiles" value="20–30"></div>
+</div>
+<div class="field" style="margin-top:10px"><label>INJURY / SYMPTOM HISTORY & TRAINING NOTES (OPTIONAL)</label><textarea id="profilesymptoms" placeholder="Add relevant training constraints or notes for your coach"></textarea></div>
+<div class="actions"><button id="saveprofile">Save athlete profile</button></div>
+<p class="muted" id="profilemsg"></p>
+</div></details>
+<details class="panel" id="dashboard-panel" open>
+<summary>Training dashboard</summary>
+<div class="section-body">
+<div class="grid">
+<div><div class="muted">Sessions logged</div><div class="stat" id="sessions">0</div></div>
+<div><div class="muted">Run mileage logged (all time)</div><div class="stat" id="miles">0.0 mi</div></div><div><div class="muted">This calendar week</div><div class="stat" id="weekMiles">0.0 mi</div><div class="progress"><div id="weekMilesBar" style="width:0%"></div></div></div><div><div class="muted">Workouts logged today</div><div class="stat" id="todayCount">0</div></div>
+<div><div class="muted">Current week</div><div class="stat" id="weeklabel">Week 1 / 10</div></div>
+<div><div class="muted">Completion</div><div class="stat" id="completion">0%</div><div class="progress"><div id="bar" style="width:0%"></div></div></div>
+</div>
+</div></details>
+<details class="panel" open>
+<summary>Choose your training day</summary>
+<div class="section-body">
+<div class="controls">
+<div class="field"><label for="week">PROGRAM WEEK</label><select id="week"></select></div>
+<div class="field"><label for="day">DAY</label><select id="day"></select></div>
+<div class="field"><label for="date">ACTUAL DATE</label><input type="date" id="date"></div>
+</div>
+<div class="grid" id="daybuttons" style="margin-top:12px"></div>
+</div></details>
+<details class="panel" id="sessionpanel" open>
+<summary>Today’s workout</summary><div class="section-body">
+<div class="pill" id="daytype">MONDAY</div><h2 id="sessiontitle">Strength + conditioning</h2>
+<p class="muted" id="focus"></p>
+<div id="prescription"></div>
+<h3>Daily training log</h3>
+<div class="grid">
+<div class="field"><label>ACTIVITY CATEGORY</label><select id="sessioncategory"><option>CrossFit</option><option>Running</option><option>Lifting</option><option>Biking</option><option>Rowing</option><option>Ski erg</option><option>Walking</option></select></div>
+<div class="field"><label>PRIMARY LIFT</label><select id="lift"><option value="">Select lift (optional)</option><option>Back squat</option><option>Front squat</option><option>Deadlift</option><option>Bench press</option><option>Strict press</option><option>Clean & jerk</option><option>Snatch</option></select></div>
+<div class="field"><label>WORKING WEIGHT (LB)</label><input id="liftweight" type="number" min="0" step="1" placeholder="e.g. 225"></div>
+<div class="field"><label>SETS</label><input id="liftsets" type="number" min="0" placeholder="e.g. 5"></div><div class="field"><label>REPS PER SET</label><input id="liftreps" type="number" min="0" placeholder="e.g. 3"></div>
+<div class="field"><label>STRENGTH LOAD / DETAILS</label><input id="load" placeholder="e.g. 5x3, tempo, technique notes"></div>
+<div class="field"><label>METCON RESULT</label><input id="result" placeholder="Time, rounds + reps, or score"></div>
+<div class="field"><label>RUN DISTANCE (MILES)</label><input id="distance" type="number" min="0" step=".1" placeholder="0"></div>
+<div class="field"><label>ACTIVITY DURATION (MIN)</label><input id="duration" type="number" min="0" step="1" placeholder="e.g. 45"></div><div class="field"><label>RUN TIME</label><input id="runtime" placeholder="e.g. 34:20"></div>
+<div class="field"><label>SESSION RPE (1–10)</label><input id="rpe" type="number" min="1" max="10" placeholder="7"></div>
+<div class="field"><label>PAIN DURING / AFTER (0–10)</label><input id="pain" type="number" min="0" max="10" placeholder="0"></div>
+</div>
+<div class="field" style="margin-top:10px"><label>NOTES / MOVEMENT QUALITY / SLEEP / RECOVERY</label><textarea id="notes" placeholder="How did it feel? Any symptoms, substitutions, or technique notes?"></textarea></div>
+<div class="actions"><button id="save">Save session</button><button class="secondary" id="clear">Clear this day's log</button></div>
+<div class="panel" style="margin-top:14px;background:var(--panel2)">
+<div class="pill">LIVE COACHING FEEDBACK</div>
+<p id="livefeedback" aria-live="polite">Choose a lift or enter today's training details to see immediate feedback.</p>
+<p class="muted" id="liftpercent"></p>
+</div>
+<p class="muted" id="savedmsg" aria-live="polite"></p>
+</div></details>
+<details class="panel">
+<summary>10-week progression</summary>
+<div class="section-body">
+<div id="progression"></div>
+<p class="muted">Loads are autoregulated by RPE, not forced percentages. Build only while technique and symptoms remain stable. Weeks 4 and 8 reduce volume; week 10 tapers.</p>
+</div></details>
+<details class="panel" id="editor">
+<summary>Edit your workouts</summary>
+<div class="section-body">
+<p class="muted">Choose a week and day above, then edit the session prescriptions below. Workout edits sync to your cloud account when you are logged in.</p>
+<div class="grid">
+<div class="field"><label>STRENGTH / WEIGHTLIFTING</label><textarea id="editstrength"></textarea></div>
+<div class="field"><label>SKILL / RUNNING QUALITY</label><textarea id="editskill"></textarea></div>
+<div class="field"><label>CROSSFIT CONDITIONING</label><textarea id="editwod"></textarea></div>
+<div class="field"><label>RUN PRESCRIPTION</label><textarea id="editrun"></textarea></div>
+<div class="field"><label>REHAB / PREHAB</label><textarea id="editrehab"></textarea></div>
+</div>
+<div class="actions"><button id="saveworkout">Save workout edits</button><button class="secondary" id="resetworkout">Restore original workout</button></div>
+<p class="muted" id="editmsg" aria-live="polite"></p>
+</div></details>
+
+<details class="panel" id="logbook" open><summary>Workout logbook & lift history</summary><div class="section-body">
+<p class="muted">Browse completed sessions, filter by discipline, and view your saved lifting numbers. Scheduled sessions and extra activities appear together.</p>
+<div class="controls"><div class="field"><label>CATEGORY</label><select id="logFilter"><option>All</option><option>CrossFit</option><option>Running</option><option>Lifting</option><option>Biking</option><option>Rowing</option><option>Ski erg</option><option>Walking</option></select></div><div class="field"><label>SEARCH LOGS</label><input id="logSearch" placeholder="Lift, score, notes…"></div></div>
+<div id="logbookList" class="logbook-list"></div><h3>Lift history & best logged weight</h3><div id="liftHistory"></div>
+<details class="subsection"><summary>Log an extra activity (outside the program)</summary><div class="section-body"><div class="grid">
+<div class="field"><label>DATE</label><input type="date" id="extraDate"></div><div class="field"><label>CATEGORY</label><select id="extraCategory"><option>CrossFit</option><option>Running</option><option>Lifting</option><option>Biking</option><option>Rowing</option><option>Ski erg</option><option>Walking</option></select></div>
+<div class="field"><label>ACTIVITY NAME</label><input id="extraName" placeholder="e.g. Easy bike ride"></div><div class="field"><label>DURATION (MIN)</label><input type="number" id="extraDuration" min="0"></div><div class="field"><label>DISTANCE (MILES)</label><input type="number" id="extraDistance" min="0" step="0.01"></div><div class="field"><label>LIFT (OPTIONAL)</label><input id="extraLift" placeholder="e.g. Back squat"></div><div class="field"><label>WEIGHT (LB)</label><input id="extraWeight" type="number" min="0"></div><div class="field"><label>SETS × REPS</label><input id="extraSets" placeholder="e.g. 5x3"></div></div>
+<div class="field"><label>RESULT / NOTES</label><textarea id="extraNotes"></textarea></div><div class="actions"><button id="saveExtra">Save extra activity</button></div><p class="muted" id="extraStatus"></p></div></details>
+</div></details>
+<details class="panel" id="ai-coach" open>
+<summary>AI performance coach</summary>
+<div class="section-body">
+<p class="muted">Online coach connected through your local backend. Your API key stays on your computer. Nothing is sent until you press Send; the request includes the message, your athlete profile, this workout, and recent saved training logs.</p>
+<div id="coachstatus" class="tag">Checking coach connection…</div>
+<div id="workoutproposal" hidden class="proposal"></div>
+<div id="chatmessages" style="display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto;margin:14px 0" aria-live="polite"></div>
+<div class="field"><label for="coachinput">ASK YOUR COACH</label><textarea id="coachinput" rows="3" placeholder="Example: I hit all 5x3 thrusters at 185 lb, power cleans at 205 lb, RPE 8. What should I adjust?"></textarea></div>
+<div class="actions"><button id="coachsend">Send to coach</button><button class="secondary" id="coachclear">Clear chat</button></div>
+<p class="muted" id="coachnotice">Coaching is training guidance, not medical diagnosis. Stop and seek qualified assessment for worsening pain, new weakness, numbness, or loss of function.</p>
+</div></details>
+
+<details class="panel" id="nutrition" open>
+<summary>Nutrition & food log</summary><div class="section-body">
+<p class="muted">Tell your AI what you ate — even without measurements. It can search the web for nutrition information, assume typical portions, and estimate macros. Review before saving; these are estimates, not exact measurements.</p>
+<details class="subsection" open><summary>Personal macro & calorie goals</summary><div class="section-body"><div class="grid">
+<div class="field"><label>DAILY CALORIES (KCAL)</label><input id="goalcal" type="number" min="0" placeholder="e.g. 2800"></div><div class="field"><label>PROTEIN (G)</label><input id="goalprotein" type="number" min="0" placeholder="e.g. 180"></div><div class="field"><label>CARBS (G)</label><input id="goalcarbs" type="number" min="0" placeholder="e.g. 350"></div><div class="field"><label>FAT (G)</label><input id="goalfat" type="number" min="0" placeholder="e.g. 80"></div></div>
+<div class="field"><label>PERSONAL NUTRITION GOAL</label><textarea id="goalnotes" placeholder="e.g. Fuel training, improve recovery, maintain weight"></textarea></div><button id="saveGoals">Save my goals</button><p id="goalStatus" class="muted"></p></div></details>
+<div class="nutrition-toolbar"><div class="field"><label for="mealdate">FOOD LOG DATE</label><input id="mealdate" type="date"></div><div class="field"><label for="mealtype">MEAL TYPE</label><select id="mealtype"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Other</option></select></div></div>
+<div class="nutrition-hint">Step 1: Describe a meal and estimate it (or enter manually). Step 2: Review and press <b>Add to Daily Counter</b>. Step 3: Your saved meals and totals update immediately, even offline.</div>
+<h3 class="counter-heading">DAILY TOTALS · <span id="counterDate">TODAY</span></h3><div class="macro-row" style="margin:12px 0" aria-live="polite"><div class="macro"><strong id="totalcal">0</strong><small>kcal</small></div><div class="macro"><strong id="totalprotein">0 g</strong><small>Protein</small></div><div class="macro"><strong id="totalcarbs">0 g</strong><small>Carbs</small></div><div class="macro"><strong id="totalfat">0 g</strong><small>Fat</small></div></div>
+<p id="nutritionSavedStatus" class="muted" role="status" aria-live="polite">Totals reflect saved meals for the selected date.</p><div id="goalProgress" class="goal-progress"></div><p class="muted" id="nutritionEnergy">Activity estimates are not wearable measurements.</p>
+<details class="subsection"><summary>Ask your nutrition coach</summary><div class="section-body"><p class="muted">Ask about today's macro balance, fueling, training-day adjustments, or recovery. The coach sees the selected day's totals and your saved goals.</p><div class="field"><label>YOUR QUESTION</label><textarea id="nutritionQuestion" placeholder="How should I fuel the rest of my day after training?"></textarea></div><button id="askNutrition">Ask nutrition coach</button><p id="nutritionAnswer" class="muted" aria-live="polite"></p></div></details>
+<div class="field"><label for="mealinput">DESCRIBE YOUR MEAL</label><textarea id="mealinput" placeholder="Example: 3 scrambled eggs with a teaspoon of butter, two slices of toast and a banana"></textarea></div>
+<div class="actions"><button id="estimateMeal" type="button">✦ Estimate with AI</button><button id="manualMeal" type="button" class="secondary">+ Enter meal manually</button></div>
+<p class="muted" id="mealstatus" aria-live="polite"></p>
+<div id="mealreview" hidden class="nutrition-review"><h3 id="mealReviewTitle">Review meal before adding</h3><div class="field"><label>MEAL DESCRIPTION</label><input id="mealname"></div><div class="grid"><div class="field"><label>CALORIES (KCAL)</label><input id="mealcal" type="number" min="0"></div><div class="field"><label>PROTEIN (G)</label><input id="mealprotein" type="number" min="0"></div><div class="field"><label>CARBS (G)</label><input id="mealcarbs" type="number" min="0"></div><div class="field"><label>FAT (G)</label><input id="mealfat" type="number" min="0"></div></div><p class="muted" id="mealassumptions"></p><div class="actions"><button id="saveMeal" type="button">+ Add to Daily Counter</button><button type="button" class="secondary" id="cancelMeal">Cancel</button></div></div>
+<h3>Today’s saved food log <span id="mealCount" class="muted"></span></h3><div id="meallist"></div><div class="nutrition-footer"><span id="nutritionStorageStatus" role="status">Local saving ready</span><button type="button" class="secondary" id="nutritionSelfTest">Run counter self-test</button></div><p id="nutritionTestResult" class="muted" aria-live="polite"></p>
+</div></details>
+<details class="panel">
+<summary>Rehab / movement preparation</summary>
+<div class="section-body">
+<p class="muted">Use this as low-load movement practice, not a diagnosis-specific treatment plan. Ideally have a sports PT assess hip, knee, trunk, shoulder and elbow symptoms and tailor the exercises.</p>
+<ul>
+<li><b>90/90 breathing with feet supported:</b> 2 sets of 4–5 slow breaths; relaxed neck and jaw, no forced bracing.</li>
+<li><b>Side-lying hip abduction:</b> 2×10 each side, slow and controlled; stop if it reproduces lateral knee pain.</li>
+<li><b>Supported single-leg balance:</b> 2×20–30 sec each side; pelvis level, knee tracking comfortably over foot.</li>
+<li><b>Low step-down or sit-to-stand:</b> 2×6 each side only if pain-free and controlled; use a small range.</li>
+<li><b>Bird dog:</b> 2×6 each side with 3-sec holds; keep trunk quiet, do not rotate.</li>
+<li><b>Shoulder external-rotation isometric:</b> 3×20 sec at easy effort, elbow supported; only if shoulder/elbow tolerate it.</li>
+<li><b>Scapular wall slide:</b> 2×8 in a comfortable range; no shrugging or painful range.</li>
+</ul>
+<p><b>Frequency:</b> 10–15 minutes, 4–6 days/week, easy effort. Quality over fatigue.</p>
+<div class="notice"><b>Symptom rules:</b> Keep exercise discomfort at 0–2/10 and back to baseline by the next morning. Stop or regress if pain rises, changes your mechanics, causes limping, or persists/worsens afterward. New weakness, numbness, significant swelling, locking/giving-way, or worsening shoulder/elbow weakness warrants prompt clinical assessment. Do not train through progressive weakness.</div>
+</div></details>
+<details class="panel">
+<summary>Weekly structure & running targets</summary>
+<div class="section-body">
+<table><thead><tr><th>Day</th><th>Strength / skill</th><th>Conditioning</th><th>Run</th></tr></thead>
+<tbody>
+<tr><td>Mon</td><td>Back squat + lower accessories</td><td>20–25 min mixed modal</td><td>Easy 4 mi</td></tr>
+<tr><td>Tue</td><td>Snatch technique + pull</td><td>Intervals / 20–25 min metcon</td><td>Speed session, 4–5 mi total</td></tr>
+<tr><td>Wed</td><td>Bench + upper bodybuilding / gymnastics</td><td>20–30 min aerobic mixed modal</td><td>Optional recovery 2–3 mi</td></tr>
+<tr><td>Thu</td><td>Clean & jerk + front squat</td><td>20–25 min controlled metcon</td><td>Tempo, 4–5 mi total</td></tr>
+<tr><td>Fri</td><td>Deadlift + strict gymnastics</td><td>20–30 min mixed modal</td><td>Off</td></tr>
+<tr><td>Sat</td><td>Power / skill + light accessories</td><td>20 min sustainable chipper</td><td>Long easy run, 7–9 mi</td></tr>
+<tr><td>Sun</td><td>Rest / gentle mobility</td><td>Off</td><td>Off</td></tr>
+</tbody></table>
+<p class="muted">The fifth run is optional and only an easy 2–3 miles on Wednesday. Weekly mileage is a ceiling/target only if you already tolerate similar volume; do not jump straight to 20–30 miles from a lower baseline.</p>
+</div></details>
+<details class="panel">
+<summary>Data & backup</summary>
+<div class="section-body">
+<p class="muted">Logs are saved locally as a backup and sync to your cloud account when logged in. Export regularly as an extra backup.</p>
+<div class="actions"><button id="export">Export logs (CSV)</button><button class="secondary" id="backup">Download full backup (JSON)</button><button class="danger" id="erase">Delete all saved logs</button></div>
+</div></details>
+</main><footer>Training is a draft template. Adjust around your current training base, recovery, and clinician guidance.</footer>
+<script>
+const days=[
+{key:"mon",name:"Monday",focus:"Squat strength • mixed-modal engine • easy aerobic run",strength:"Back squat: 5×3 @ RPE 6–7. Then Romanian deadlift 3×8, split squat (supported if needed) 2×8/side, calf raise 3×12.",skill:"Warm-up: 5–8 min easy bike/row + hip/trunk prep. Keep knee tracking comfortable.",wod:"20-min AMRAP: 10/8 cal bike, 10 light DB hang clean, 8 box step-ups (low box). Smooth pace; no kipping or jumping if knee symptoms.",run:"Easy 4 mi conversational. If impact symptoms appear, substitute bike/elliptical and log it.",rehab:"Rehab circuit (10–15 min): breathing, side-lying hip abduction, supported balance, bird dog."},
+{key:"tue",name:"Tuesday",focus:"Snatch technique • speed development • short metcon",strength:"Snatch technique: 6×2 hang power snatch @ RPE 5–6, then snatch pull 4×3 light/moderate. Chest-supported row 3×10.",skill:"Speed run: alternate weekly 6×400m / 5×600m / 4×800m at controlled 5K effort, with easy jog recoveries. Include warm-up and cool-down in total.",wod:"After the run or separated by several hours: 20-min EMOM: min 1 10–12 cal row, min 2 8 push-ups (elevated if needed), min 3 10 light KB deadlifts. Keep shoulder pain-free.",run:"4–5 mi total including warm-up, reps, recoveries and cool-down.",rehab:"Shoulder external-rotation isometric + scapular wall slides, only if symptom-free."},
+{key:"wed",name:"Wednesday",focus:"Upper-body strength • gymnastics capacity • optional recovery run",strength:"Bench press 4×5 @ RPE 6–7. Strict pull-up or ring row 4×6–8. DB incline press 2×10 only if shoulder/elbow comfortable; face pull 3×15.",skill:"Gymnastics skill: 8–10 min quality practice of hollow/arch positions, controlled hanging or ring support. Avoid high-volume kipping while shoulder/elbow symptoms persist.",wod:"24-min easy AMRAP: 300m row, 10 sit-ups, 8 ring rows, 10 light goblet squats to a comfortable depth. Conversational effort.",run:"Optional 2–3 mi recovery jog only if legs feel good and weekly volume is appropriate. Otherwise rest from running.",rehab:"Full low-load rehab circuit; do not chase fatigue."},
+{key:"thu",name:"Thursday",focus:"Clean & jerk • front squat • tempo run",strength:"Clean & jerk technique: 6×1+1 @ RPE 5–6. Front squat 4×3 @ RPE 6–7. Clean pull 3×3 light/moderate.",skill:"Tempo: 15–20 min comfortably hard (RPE 6–7), not a race. Build total run distance with warm-up/cool-down.",wod:"20-min quality circuit: 5 rounds, 8/side light DB step-back lunge (or box squat if knee sensitive), 10 cal bike, 8 strict ring rows. Rest as needed.",run:"4–5 mi total including warm-up, tempo and cool-down. Separate from lifting if possible.",rehab:"Breathing + trunk control + supported single-leg stability."},
+{key:"fri",name:"Friday",focus:"Thruster strength • power clean technique • controlled mixed-modal conditioning",strength:"Thruster: 5×3. Build to a technically crisp working weight at RPE 6–7; rest 2–3 minutes. Record load for every set in your notes. Do not grind reps.",skill:"Power clean: 6×2. Start light, prioritize fast extension, consistent receiving position, and clean bar path. Work around RPE 6–7; rest 90–150 seconds. This is the weightlifting portion.",wod:"Keep the existing 25-min AMRAP only if it does not compromise the quality of the thrusters and power cleans: 200m row, 10 KB deadlifts, 8 hand-release push-ups (incline if needed), farmer carry 30m. Otherwise cap it at 15–20 minutes or scale it.",run:"No programmed run. Walk or easy spin for recovery.",rehab:"Optional 8–10 min easy hip/trunk and shoulder isometrics. Scale pressing if it aggravates the left shoulder/elbow."},
+{key:"sat",name:"Saturday",focus:"Power technique • long aerobic run • sustainable chipper",strength:"Power clean 5×2 @ RPE 5–6 OR technique complex with empty/light bar. Then lateral raise 2×12, cable row 2×12, trunk carry 3 sets.",skill:"Long run at conversational pace. No pace target; finish feeling like you could continue.",wod:"20-min sustainable chipper: 500m row, 30 light wall-ball to a comfortable target (or med-ball squat), 20 sit-ups, 10 burpees to a raised target/step-back. Scale or substitute to protect symptoms.",run:"7–9 mi easy. If this is above your current long-run tolerance, shorten it; weekly mileage progression takes priority over a fixed number.",rehab:"Short recovery routine only; avoid adding hard leg work."},
+{key:"sun",name:"Sunday",focus:"Rest and recovery",strength:"No lifting or metcon.",skill:"Optional easy walk and comfortable mobility. Prioritize food, hydration and sleep.",wod:"Rest day.",run:"No run.",rehab:"Optional gentle breathing/mobility; no painful stretching or aggressive foam rolling."}
+];
+const progression=[
+["1","Foundation","RPE 6; learn positions","20–22 mi*","Establish baseline; no grinders"],
+["2","Build","RPE 6–7; add small load if crisp","21–23 mi*","Add a little volume, not intensity everywhere"],
+["3","Build","Main lifts RPE 7; maintain technique","22–24 mi*","One controlled hard interval session"],
+["4","Deload","Cut lifting sets ~30–40%","18–21 mi*","Reduce metcon volume; keep easy movement"],
+["5","Build","Main lifts 4×3–5 @ RPE 7","22–25 mi*","Resume progressive loading"],
+["6","Build","Main lifts RPE 7–8, no maxing","23–26 mi*","Metcons include moderate Open-style pacing"],
+["7","Peak build","Heavy but crisp doubles/triples @ RPE 7–8","24–27 mi*","Practice transitions and repeatable effort"],
+["8","Deload","Cut lifting/metcon volume ~35%","20–23 mi*","Keep short touches of speed, recover"],
+["9","Specificity","Maintain strength; lower accessory volume","22–25 mi*","One Open-style test, not multiple max-effort tests"],
+["10","Taper","Reduce lifting volume 40–50%; stay fast","16–20 mi*","Freshness first; no all-out training late week"]
+];
+const $=id=>document.getElementById(id);
+const KEY="openPrepLogsV1";let logs={};try{logs=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const NUTRITION_KEY="openPrepNutritionV1";
+let nutrition={};try{nutrition=JSON.parse(localStorage.getItem(NUTRITION_KEY)||"{}")}catch(e){}
+const WORKOUT_KEY="openPrepWorkoutEditsV1";
+let workoutEdits={};try{workoutEdits=JSON.parse(localStorage.getItem(WORKOUT_KEY)||"{}")}catch(e){}
+let maxes={"Back squat":335,"Front squat":305,"Deadlift":445,"Bench press":290,"Clean & jerk":280,"Snatch":225,"Strict press":170};
+let athleteProfile={maxes_lb:maxes,unbroken_chest_to_bar:40,half_marathon:"1:58:34",estimated_5k:"21:00",usual_weekly_running_miles:"20–30",symptoms_notes:"",nutrition_goals:{}};
+async function v5LegacyAuthHeaders(){
+ if(!sb||!currentUser)throw Error('Sign in to Supabase to use AI features.');
+ const {data,error}=await sb.auth.getSession();
+ if(error||!data.session?.access_token)throw Error('Your session expired. Sign in again.');
+ return {'Content-Type':'application/json','Authorization':'Bearer '+data.session.access_token};
+}
+
+let sb=null, currentUser=null, syncTimer=null;
+const cloudConfigKey="openPrepSupabaseConfigV1", profileKey="openPrepAthleteProfileV1";
+try{const savedProfile=JSON.parse(localStorage.getItem(profileKey)||"null");if(savedProfile){athleteProfile={...athleteProfile,...savedProfile};maxes={...maxes,...(savedProfile.maxes_lb||{})};}}catch(e){}
+function setCloudStatus(msg){$("cloudstatus").textContent=msg;}
+function updateProfileFields(){
+ const ids={"maxbacksquat":maxes["Back squat"],"maxfrontsquat":maxes["Front squat"],"maxdeadlift":maxes.Deadlift,"maxbench":maxes["Bench press"],"maxcleanjerk":maxes["Clean & jerk"],"maxsnatch":maxes.Snatch,"maxstrictpress":maxes["Strict press"]};
+ Object.entries(ids).forEach(([id,v])=>$(id).value=v);
+ $("profilectb").value=athleteProfile.unbroken_chest_to_bar??40;$("profile5k").value=athleteProfile.estimated_5k||"";$("profilehalf").value=athleteProfile.half_marathon||"";$("profilemiles").value=athleteProfile.usual_weekly_running_miles||"";$("profilesymptoms").value=athleteProfile.symptoms_notes||"";
+}
+function collectProfile(){
+ maxes={"Back squat":Number($("maxbacksquat").value)||0,"Front squat":Number($("maxfrontsquat").value)||0,Deadlift:Number($("maxdeadlift").value)||0,"Bench press":Number($("maxbench").value)||0,"Clean & jerk":Number($("maxcleanjerk").value)||0,Snatch:Number($("maxsnatch").value)||0,"Strict press":Number($("maxstrictpress").value)||0};
+ athleteProfile={maxes_lb:maxes,unbroken_chest_to_bar:Number($("profilectb").value)||0,estimated_5k:$("profile5k").value,half_marathon:$("profilehalf").value,usual_weekly_running_miles:$("profilemiles").value,symptoms_notes:$("profilesymptoms").value,nutrition_goals:athleteProfile.nutrition_goals||{}};
+ localStorage.setItem(profileKey,JSON.stringify(athleteProfile));
+}
+function scheduleCloudSave(){if(!currentUser||!sb)return;clearTimeout(syncTimer);syncTimer=setTimeout(()=>saveCloudData(),700);}
+async function saveCloudData(){
+ if(!currentUser||!sb)return;
+ try{const payload={user_id:currentUser.id,logs,workout_edits:workoutEdits,athlete_profile:athleteProfile,nutrition,updated_at:new Date().toISOString()};
+ const {error}=await sb.from("open_prep_data").upsert(payload,{onConflict:"user_id"});if(error)throw error;setCloudStatus("☁️ Synced just now · "+currentUser.email);
+ }catch(e){setCloudStatus("Cloud save failed: "+(e.message||"Check Supabase table and RLS setup"));}
+}
+function mergeNutritionDays(local,remote){return NutritionCore.merge(local,remote);}
+async function loadCloudData(){
+ if(!currentUser||!sb)return;
+ setCloudStatus("Loading your cloud training data…");
+ try{const {data,error}=await sb.from("open_prep_data").select("logs,workout_edits,athlete_profile,nutrition").eq("user_id",currentUser.id).maybeSingle();if(error)throw error;
+ if(data){nutrition=mergeNutritionDays(nutrition,data.nutrition||{});logs={...logs,...(data.logs||{})};workoutEdits={...workoutEdits,...(data.workout_edits||{})};if(data.athlete_profile){athleteProfile={...athleteProfile,...data.athlete_profile};maxes={...maxes,...(athleteProfile.maxes_lb||{})};updateProfileFields();}}
+ localStorage.setItem(NUTRITION_KEY,JSON.stringify(nutrition));renderNutrition();localStorage.setItem(KEY,JSON.stringify(logs));localStorage.setItem(WORKOUT_KEY,JSON.stringify(workoutEdits));localStorage.setItem(profileKey,JSON.stringify(athleteProfile));render();renderStats();renderLogbook();loadNutritionGoals();await saveCloudData();
+ }catch(e){setCloudStatus("Cloud load failed: "+(e.message||"Check setup SQL and Supabase settings"));}
+}
+function initSupabase(){
+ let cfg={};try{cfg=JSON.parse(localStorage.getItem(cloudConfigKey)||"{}");}catch(e){}
+ if(cfg.url)$("sburl").value=cfg.url;if(cfg.key)$("sbkey").value=cfg.key;
+ if(!cfg.url||!cfg.key||!window.supabase){setCloudStatus("Add your Supabase project URL and publishable/anon key, then save settings.");return;}
+ sb=window.supabase.createClient(cfg.url,cfg.key);
+ sb.auth.getSession().then(({data})=>{currentUser=data.session?.user||null;if(currentUser)loadCloudData();else setCloudStatus("Supabase connected. Create an account or log in.");});
+ sb.auth.onAuthStateChange((_event,session)=>{const next=session?.user||null;const changed=(next?.id||null)!==(currentUser?.id||null);currentUser=next;if(currentUser&&changed)setTimeout(()=>loadCloudData(),0);else if(!currentUser)setCloudStatus("Logged out. This device still has its local copy.");});
+}
+$("savecloudconfig").onclick=()=>{const url=$("sburl").value.trim(),key=$("sbkey").value.trim();if(!/^https:\/\//.test(url)||!key){setCloudStatus("Enter a valid Supabase URL and publishable/anon key.");return;}localStorage.setItem(cloudConfigKey,JSON.stringify({url,key}));sb=null;currentUser=null;initSupabase();setCloudStatus("Cloud settings saved. Create an account or log in.");};
+$("signup").onclick=async()=>{if(!sb){setCloudStatus("Save Supabase settings first.");return;}const {data,error}=await sb.auth.signUp({email:$("accountemail").value.trim(),password:$("accountpassword").value});if(error){setCloudStatus("Sign-up failed: "+error.message);return;}if(data.session){currentUser=data.user;await loadCloudData();}else setCloudStatus("Account created. Check your email to confirm, then log in.");};
+$("signin").onclick=async()=>{if(!sb){setCloudStatus("Save Supabase settings first.");return;}const {data,error}=await sb.auth.signInWithPassword({email:$("accountemail").value.trim(),password:$("accountpassword").value});if(error){setCloudStatus("Login failed: "+error.message);return;}currentUser=data.user;await loadCloudData();};
+$("signout").onclick=async()=>{if(sb)await sb.auth.signOut();currentUser=null;setCloudStatus("Logged out. Local data remains on this device.");};
+$("syncnow").onclick=()=>saveCloudData();
+$("saveprofile").onclick=()=>{collectProfile();scheduleCloudSave();$("profilemsg").textContent="Athlete profile saved locally and queued for cloud sync.";};
+updateProfileFields();
+let selectedDay=4;
+for(let i=1;i<=10;i++)$("week").add(new Option("Week "+i,i));
+days.forEach((d,i)=>$("day").add(new Option(d.name,i)));
+$("week").value="1";$("day").value="4";
+function dateFor(w,d){let dt=new Date(2026,10,9);dt.setDate(dt.getDate()+(w-1)*7+d);return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0")}
+function key(){return $("week").value+"-"+$("day").value}
+function escapeHTML(v){return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;").replaceAll("\\n","<br>")}
+function render(){
+ const w=+$("week").value;selectedDay=+$("day").value;const d=days[selectedDay];
+ $("daytype").textContent=d.name.toUpperCase();$("sessiontitle").textContent=d.name+" — "+(["Strength + engine","Olympic lifting + speed","Upper strength + aerobic","Clean & jerk + tempo","Deadlift + gymnastics","Power + long aerobic","Recovery"][selectedDay]);
+ $("focus").textContent=d.focus;
+ const custom=workoutEdits[key()]||{};
+ const current={strength:custom.strength??d.strength,skill:custom.skill??d.skill,wod:custom.wod??d.wod,run:custom.run??d.run,rehab:custom.rehab??d.rehab};
+ $("prescription").innerHTML=[['Strength / lifting',current.strength],['Skill / running quality',current.skill],['CrossFit conditioning',current.wod],['Running prescription',current.run],['Rehab / prehab',current.rehab]].map(([title,body],i)=>`<details class="subsection" ${i===0?'open':''}><summary>${title}</summary><p>${escapeHTML(body)}</p></details>`).join('');
+ $("editstrength").value=current.strength;$("editskill").value=current.skill;$("editwod").value=current.wod;$("editrun").value=current.run;$("editrehab").value=current.rehab;
+ $("editmsg").textContent=custom.strength||custom.skill||custom.wod||custom.run||custom.rehab?"Custom edits saved for this session.":"Showing original program.";
+ $("date").value=dateFor(w,selectedDay);
+ document.querySelectorAll(".day").forEach((b,i)=>b.classList.toggle("active",i===selectedDay));
+ const l=logs[key()]||{};["load","result","distance","runtime","rpe","pain","notes","lift","liftweight","liftsets","liftreps","duration"].forEach(id=>$(id).value=l[id]||"");$("sessioncategory").value=l.category||"CrossFit";
+ $("savedmsg").textContent=l.saved?"Saved on this device.":"Not logged yet.";
+ updateFeedback();
+}
+function renderStats(){
+ const vals=Object.values(logs).filter(x=>x.saved),m=vals.filter(x=>!x.extra||(x.category||'')==='Running').reduce((a,x)=>a+(Number(x.distance)||0),0);
+ const today=new Date().toLocaleDateString('en-CA'),start=weekStart(today),weekRunning=vals.filter(x=>x.date&&x.date>=start&&x.date<=today&&(!x.extra||(x.category||'')==='Running')).reduce((a,x)=>a+(Number(x.distance)||0),0);
+ $("weekMiles").textContent=weekRunning.toFixed(1)+" mi";$("weekMilesBar").style.width=Math.min(100,weekRunning/25*100)+"%";$("todayCount").textContent=vals.filter(x=>x.date===today).length;
+ $("sessions").textContent=vals.length;$("miles").textContent=m.toFixed(1)+" mi";
+ $("weeklabel").textContent="Week "+$("week").value+" / 10";
+ $("completion").textContent=Math.round(vals.filter(x=>x.saved&&!x.extra).length/60*100)+"%";
+ $("bar").style.width=Math.min(100,vals.filter(x=>x.saved&&!x.extra).length/60*100)+"%";
+}
+function save(){const l={};["load","result","distance","runtime","rpe","pain","notes","lift","liftweight","liftsets","liftreps","duration"].forEach(id=>l[id]=$(id).value);l.category=$("sessioncategory").value;l.saved=true;l.date=$("date").value;l.day=days[selectedDay].name;l.week=+$("week").value;logs[key()]=l;localStorage.setItem(KEY,JSON.stringify(logs));scheduleCloudSave();$("savedmsg").textContent=currentUser?"Saved and syncing to your account.":"Saved locally on this device. Log in to sync across devices.";renderStats();renderLogbook();renderNutritionGoals()}
+$("save").onclick=save;
+$("saveworkout").onclick=()=>{
+ workoutEdits[key()]={strength:$("editstrength").value,skill:$("editskill").value,wod:$("editwod").value,run:$("editrun").value,rehab:$("editrehab").value};
+ localStorage.setItem(WORKOUT_KEY,JSON.stringify(workoutEdits));scheduleCloudSave();render();$("editmsg").textContent="Workout edits saved and queued for cloud sync.";
+};
+$("resetworkout").onclick=()=>{
+ delete workoutEdits[key()];localStorage.setItem(WORKOUT_KEY,JSON.stringify(workoutEdits));scheduleCloudSave();render();$("editmsg").textContent="Original workout restored.";
+};
+["lift","liftweight","distance","rpe","pain"].forEach(id=>$(id).addEventListener("input",updateFeedback));
+function updateFeedback(){
+ const lift=$("lift").value, wt=Number($("liftweight").value), rpe=Number($("rpe").value), pain=Number($("pain").value), dist=Number($("distance").value);
+ const week=+$("week").value;
+ const weekMiles=Object.values(logs).filter(x=>x.week===week).reduce((a,x)=>a+(Number(x.distance)||0),0)+dist-(Number((logs[key()]||{}).distance)||0);
+ let msgs=[];
+ if(lift && wt>0 && maxes[lift]){
+   const pct=wt/maxes[lift]*100;
+   $("liftpercent").textContent=`${lift}: ${wt} / ${maxes[lift]} lb = ${pct.toFixed(1)}% of your entered max.`;
+   if(pct<60) msgs.push("This is a light technique / warm-up load relative to your current max.");
+   else if(pct<=75) msgs.push("Moderate loading: generally appropriate for volume or crisp technique work.");
+   else if(pct<=85) msgs.push("Moderately heavy: keep reps technically clean and avoid grinding.");
+   else if(pct<=92) msgs.push("Heavy loading: reserve for planned low-rep work; stop if bar speed or position breaks down.");
+   else msgs.push("Near-maximal loading: this is not a routine training load. Do not force it, especially during a high-volume conditioning block.");
+ } else {$("liftpercent").textContent="Select a lift and enter a working weight to calculate intensity against your current maxes.";}
+ if(rpe>=9) msgs.push("High session effort (RPE 9+): consider reducing accessory work or tomorrow's intensity.");
+ else if(rpe>=8) msgs.push("Hard session. Prioritize recovery and keep the next session honest.");
+ if(pain>=4) msgs.push("Pain is elevated. Stop or modify the provoking movement; do not push through it.");
+ else if(pain>=3) msgs.push("Pain is above the intended monitoring range. Reduce range/load or substitute, and reassess symptoms.");
+ else if(pain>=1) msgs.push("Mild symptoms recorded. Monitor during the session and again tomorrow; symptoms should not escalate or alter mechanics.");
+ if(dist>0){
+   if(weekMiles>30) msgs.push(`Your logged running total would be ${weekMiles.toFixed(1)} miles this week, above your usual 20–30 mile range. Consider stopping here or substituting low-impact aerobic work.`);
+   else if(weekMiles>27) msgs.push(`Weekly running total would be ${weekMiles.toFixed(1)} miles. You're approaching the upper end of your usual range.`);
+   else msgs.push(`Weekly running total would be ${weekMiles.toFixed(1)} miles. Compare this with your recent average and avoid sudden increases.`);
+ }
+ if(!msgs.length) msgs.push("No obvious flag from the fields entered. Keep the session controlled and judge the response during and the day after training.");
+ $("livefeedback").textContent=msgs.join(" ");
+}
+$("clear").onclick=()=>{delete logs[key()];localStorage.setItem(KEY,JSON.stringify(logs));scheduleCloudSave();render();renderStats();renderLogbook();renderNutritionGoals()};
+$("week").onchange=()=>{render();renderStats()};$("day").onchange=()=>{render();renderStats()};
+$("daybuttons").innerHTML=days.map((d,i)=>`<button class="day ${i===0?"active":""}" data-i="${i}"><strong>${d.name}</strong><small>${["Squat + easy run","Snatch + intervals","Bench + aerobic","Clean & jerk + tempo","Deadlift + metcon","Power + long run","Rest"][i]}</small></button>`).join("");
+document.querySelectorAll(".day").forEach(b=>b.onclick=()=>{$("day").value=b.dataset.i;render()});
+$("progression").innerHTML="<table><thead><tr><th>Week</th><th>Phase</th><th>Strength</th><th>Run target</th><th>Focus</th></tr></thead><tbody>"+progression.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")+"</tbody></table><p class='muted'>*Mileage is an approximate ceiling for someone already running consistently. Start from your actual recent average and increase conservatively; the table is not a mandate to jump volume.</p>";
+$("export").onclick=()=>{let rows=[["week","day","date","strength_details","metcon_result","distance_mi","run_time","rpe","pain","notes"]];Object.values(logs).forEach(x=>rows.push([x.week,x.day,x.date,x.load,x.result,x.distance,x.runtime,x.rpe,x.pain,x.notes]));let csv=rows.map(r=>r.map(v=>'"'+String(v??"").replaceAll('"','""')+'"').join(",")).join("\n");download("open-prep-logs.csv",csv,"text/csv")};
+$("backup").onclick=()=>download("open-prep-backup.json",JSON.stringify({program:"Open Prep 10 Week",logs,workoutEdits,athleteProfile,nutrition},null,2),"application/json");
+$("erase").onclick=()=>{if(confirm("Delete every saved training log from this browser and your cloud account? This cannot be undone.")){logs={};localStorage.removeItem(KEY);scheduleCloudSave();render();renderStats();renderLogbook();renderNutritionGoals()}};
+function download(name,data,type){let a=document.createElement("a"),u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
+render();renderStats();updateFeedback();
+
+let pendingWorkout=null;
+function showWorkoutProposal(change){
+ const fields=['strength','skill','wod','run','rehab'];if(!change||!fields.some(f=>typeof change[f]==='string'))return;
+ pendingWorkout={week:Number($('week').value),day:Number($('day').value),change};
+ const area=$('workoutproposal');area.hidden=false;area.replaceChildren();
+ const heading=document.createElement('strong');heading.textContent='Proposed workout edits — review before applying';area.append(heading);
+ for(const field of fields){if(typeof change[field]!=='string')continue;const wrap=document.createElement('div');const label=document.createElement('label');label.textContent=field.toUpperCase();const input=document.createElement('textarea');input.dataset.field=field;input.value=change[field];wrap.append(label,input);area.append(wrap);}
+ const actions=document.createElement('div');actions.className='actions';const apply=document.createElement('button');apply.textContent='Apply edits to selected workout';apply.onclick=()=>{
+  if(!pendingWorkout||pendingWorkout.week!==Number($('week').value)||pendingWorkout.day!==Number($('day').value)){alert('Return to the workout day for this proposal before applying.');return;}
+  const k=key();const d=days[Number($('day').value)];const current=workoutEdits[k]||{};
+  area.querySelectorAll('textarea[data-field]').forEach(input=>{current[input.dataset.field]=input.value});workoutEdits[k]=current;
+  localStorage.setItem(WORKOUT_KEY,JSON.stringify(workoutEdits));scheduleCloudSave();render();area.hidden=true;pendingWorkout=null;
+  addChatBubble('assistant','Workout changes applied to the selected day and queued for cloud sync.');
+ };
+ const cancel=document.createElement('button');cancel.className='secondary';cancel.textContent='Discard';cancel.onclick=()=>{area.hidden=true;pendingWorkout=null};actions.append(apply,cancel);area.append(actions);
+}
+const coachHistory=[];
+function addChatBubble(role,content){
+ const wrap=document.createElement("div");
+ wrap.style.cssText="padding:10px 12px;border:1px solid var(--line);border-radius:10px;max-width:95%;white-space:pre-wrap;overflow-wrap:anywhere;"+(role==="user"?"align-self:flex-end;background:#23483f":"align-self:flex-start;background:var(--panel2)");
+ const who=document.createElement("div");who.style.cssText="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px";who.textContent=role==="user"?"YOU":"OPEN PREP COACH";
+ const body=document.createElement("div");body.textContent=content;
+ wrap.append(who,body);$("chatmessages").appendChild(wrap);$("chatmessages").scrollTop=$("chatmessages").scrollHeight;
+}
+async function checkCoach(){
+ try{const r=await fetch("/api/health");const data=await r.json();$("coachstatus").textContent=data.configured?"AI coach connected":"Backend running — add your API key";$("coachstatus").style.borderColor=data.configured?"var(--accent)":"var(--warn)";}
+ catch(e){$("coachstatus").textContent="Coach offline — start app with run script";$("coachstatus").style.borderColor="var(--warn)";}
+}
+async function sendCoach(){
+ const message=$("coachinput").value.trim();if(!message)return;
+ $("coachinput").value="";addChatBubble("user",message);
+ const send=$("coachsend");send.disabled=true;send.textContent="Thinking…";
+ const w=+$("week").value,d=days[+$("day").value],custom=workoutEdits[key()]||{};
+ const session={week:w,day:d.name,date:$("date").value,workout:{
+ strength:custom.strength??d.strength,skill:custom.skill??d.skill,conditioning:custom.wod??d.wod,run:custom.run??d.run,rehab:custom.rehab??d.rehab
+ },current_log:{lift:$("lift").value,working_weight_lb:$("liftweight").value,strength_details:$("load").value,metcon_result:$("result").value,run_distance_miles:$("distance").value,run_time:$("runtime").value,rpe:$("rpe").value,pain_0_to_10:$("pain").value,notes:$("notes").value}};
+ const recent=Object.values(logs).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,10);
+ const profile={...athleteProfile,maxes_lb:maxes,recent_training_logs:recent};
+ try{
+  const response=await fetch("/api/coach",{method:"POST",headers:await v5LegacyAuthHeaders(),body:JSON.stringify({message,history:coachHistory.slice(-12),athlete_profile:profile,current_session:session})});
+  const data=await response.json();
+  if(!response.ok)throw new Error(data.detail||"Coach request failed");
+  const answer=data.answer||"I couldn't generate a response.";
+  if(data.workout_update)showWorkoutProposal(data.workout_update);
+  coachHistory.push({role:"user",content:message},{role:"assistant",content:answer});
+  addChatBubble("assistant",answer);
+ }catch(err){addChatBubble("assistant","I couldn't reach the AI coach: "+err.message+". Check that the local server is running and OPENAI_API_KEY is configured.");}
+ finally{send.disabled=false;send.textContent="Send to coach";}
+}
+$("coachsend").onclick=sendCoach;
+$("coachinput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendCoach();}});
+$("coachclear").onclick=()=>{coachHistory.length=0;$("chatmessages").innerHTML="";};
+// A small, public-domain KJV collection rotates deterministically with the local calendar day.
+const dailyVerses=[
+ ["This is the day which the LORD hath made; we will rejoice and be glad in it.","Psalm 118:24"],
+ ["I can do all things through Christ which strengtheneth me.","Philippians 4:13"],
+ ["The LORD is my shepherd; I shall not want.","Psalm 23:1"],
+ ["Be strong and of a good courage; be not afraid, neither be thou dismayed.","Joshua 1:9"],
+ ["Trust in the LORD with all thine heart; and lean not unto thine own understanding.","Proverbs 3:5"],
+ ["But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles.","Isaiah 40:31"],
+ ["Let all your things be done with charity.","1 Corinthians 16:14"],
+ ["Commit thy works unto the LORD, and thy thoughts shall be established.","Proverbs 16:3"],
+ ["Rejoice evermore.","1 Thessalonians 5:16"],
+ ["Pray without ceasing.","1 Thessalonians 5:17"],
+ ["The LORD is my light and my salvation; whom shall I fear?","Psalm 27:1"],
+ ["A merry heart doeth good like a medicine.","Proverbs 17:22"]
+];
+function setDailyVerse(){
+ const today=new Date(),start=new Date(today.getFullYear(),0,1);
+ const day=Math.floor((new Date(today.getFullYear(),today.getMonth(),today.getDate())-start)/86400000);
+ const [verse,ref]=dailyVerses[day%dailyVerses.length];
+ $('dailyVerse').textContent='“'+verse+'”';$('dailyVerseRef').textContent=ref+' · King James Version';
+}
+setDailyVerse();
+// V5.0 rebuilt nutrition UI. All counter updates come from NutritionCore.totals().
+let editingMealId=null, pendingMealDate=null;
+function localToday(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
+function nutritionDayKey(){return $('mealdate').value||localToday();}
+function getDailyTotals(date){return NutritionCore.totals(nutrition,date||nutritionDayKey());}
+function persistNutrition(){
+ // Local-first: the daily total updates even if the cloud is unavailable.
+ try{localStorage.setItem(NUTRITION_KEY,JSON.stringify(nutrition));$('nutritionStorageStatus').textContent='✓ Saved on this device · Cloud sync pending';}
+ catch(e){$('nutritionStorageStatus').textContent='⚠ Local save failed: '+e.message;throw e;}
+ renderNutrition();
+ try{scheduleCloudSave();}catch(e){$('nutritionStorageStatus').textContent='Saved locally; cloud sync could not start: '+e.message;}
+}
+
+function showMealReview(meal,date,edit=false){
+ pendingMealDate=date;editingMealId=edit?meal.id:null;
+ $('mealreview').hidden=false;$('mealReviewTitle').textContent=edit?'Edit saved meal':'Review meal estimate';
+ $('mealname').value=meal.name||'';
+ for(const [id,k] of [['mealcal','calories'],['mealprotein','protein'],['mealcarbs','carbs'],['mealfat','fat']])$(id).value=meal[k]??0;
+ $('mealassumptions').textContent=meal.assumptions||'Adjust the portions and macros if needed.';
+ $('saveMeal').textContent=edit?'Save changes':'+ Add to Daily Counter';
+ try{$('mealreview').scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}
+}
+function renderNutrition(){
+ const date=nutritionDayKey(),totals=getDailyTotals(date),meals=NutritionCore.visible(nutrition,date);$('counterDate').textContent=date;
+ for(const [id,k] of [['totalcal','calories'],['totalprotein','protein'],['totalcarbs','carbs'],['totalfat','fat']])$(id).textContent=Math.round(totals[k])+(k==='calories'?'':' g');
+ $('mealCount').textContent='('+meals.length+')';
+ const list=$('meallist');list.replaceChildren();
+ if(!meals.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='No saved meals on '+date+'. Estimate or enter a meal above, then press Add to Daily Counter.';list.append(empty);}
+ for(const m of meals){
+  const row=document.createElement('div');row.className='meal';
+  const desc=document.createElement('div');const title=document.createElement('strong');title.textContent=(m.type?m.type+' · ':'')+(m.name||'Meal');
+  const sub=document.createElement('div');sub.className='muted';sub.textContent=`${Math.round(Number(m.calories)||0)} kcal · Protein ${Number(m.protein)||0} g · Carbs ${Number(m.carbs)||0} g · Fat ${Number(m.fat)||0} g`;
+  desc.append(title,sub);const actions=document.createElement('div');actions.className='actions';
+  const edit=document.createElement('button');edit.className='secondary';edit.textContent='Edit';edit.onclick=()=>{ $('mealtype').value=m.type||'Other';showMealReview(m,date,true);};
+  const del=document.createElement('button');del.className='secondary';del.textContent='Delete';del.onclick=()=>{
+   if(!confirm('Delete this meal from '+date+'?'))return;
+   nutrition=NutritionCore.remove(nutrition,date,m.id,new Date().toISOString());persistNutrition();
+   $('nutritionSavedStatus').textContent='Meal deleted. Counter updated: '+Math.round(getDailyTotals(date).calories)+' kcal.';
+  };
+  actions.append(edit,del);row.append(desc,actions);list.append(row);
+ }
+ renderNutritionGoals();
+}
+$('mealdate').value=localToday();
+$('mealdate').onchange=()=>{editingMealId=null;pendingMealDate=null;$('mealreview').hidden=true;renderNutrition();};
+$('manualMeal').onclick=()=>{
+ const description=$('mealinput').value.trim()||'Manual meal';
+ showMealReview({name:description,calories:0,protein:0,carbs:0,fat:0,assumptions:'Manual entry — enter the nutritional values you know.'},nutritionDayKey());
+ $('mealstatus').textContent='Manual entry ready. Enter values, then click Add to Daily Counter.';
+};
+$('estimateMeal').onclick=async()=>{
+ const description=$('mealinput').value.trim();if(!description){$('mealstatus').textContent='Describe your meal first, or choose Enter meal manually.';return;}
+ const date=nutritionDayKey();const btn=$('estimateMeal');btn.disabled=true;
+ $('mealstatus').textContent='Researching and estimating…';$('mealreview').hidden=true;
+ try{
+  const response=await fetch('/api/nutrition/estimate',{method:'POST',headers:await v5LegacyAuthHeaders(),body:JSON.stringify({description})});
+  const data=await response.json().catch(()=>({detail:'Server returned an unreadable response'}));if(!response.ok)throw Error(typeof data.detail==='string'?data.detail:'AI estimate failed (HTTP '+response.status+')');
+  if(!NutritionCore.valid(data))throw Error('AI returned invalid nutrition values. Try again or enter manually.');
+  const sources=Array.isArray(data.sources)?data.sources.join(', '):'';
+  showMealReview({...data,name:data.name||description,assumptions:(data.assumptions||'Assumed typical serving sizes.')+(sources?' · References: '+sources:'')},date);
+  $('mealstatus').textContent='Estimate ready. Review the numbers, then press Add to Daily Counter.';
+ }catch(e){$('mealstatus').textContent='AI estimate unavailable: '+e.message+' — use Enter meal manually to save your meal.';}
+ finally{btn.disabled=false;}
+};
+$('saveMeal').addEventListener('click',()=>{
+ const date=pendingMealDate||nutritionDayKey();
+ const meal={id:editingMealId||(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():'meal-'+Date.now()+'-'+Math.random().toString(36).slice(2)),name:$('mealname').value.trim()||'Meal',type:$('mealtype').value,assumptions:$('mealassumptions').textContent,updated_at:new Date().toISOString()};
+ for(const [k,id] of [['calories','mealcal'],['protein','mealprotein'],['carbs','mealcarbs'],['fat','mealfat']])meal[k]=Number($(id).value);
+ if(!NutritionCore.valid(meal)){$('mealstatus').textContent='Enter valid nonnegative calories and macros (up to 10,000 each).';return;}
+ try{
+  nutrition=NutritionCore.put(nutrition,date,meal);
+  persistNutrition();
+  editingMealId=null;pendingMealDate=null;$('mealreview').hidden=true;$('mealinput').value='';
+  $('mealstatus').textContent='✓ Meal saved. The daily counter now shows '+Math.round(getDailyTotals(date).calories)+' kcal.';
+  $('nutritionSavedStatus').textContent='✓ '+meal.name+' saved for '+date+' · Daily total: '+Math.round(getDailyTotals(date).calories)+' kcal.';
+ }catch(e){$('mealstatus').textContent='Could not save locally: '+e.message;}
+});
+$('cancelMeal').onclick=()=>{editingMealId=null;pendingMealDate=null;$('mealreview').hidden=true;};
+$('nutritionSelfTest').onclick=()=>{
+ const testDay='2099-01-01';let test={};const stamp='2099-01-01T12:00:00Z';
+ test=NutritionCore.put(test,testDay,{id:'a',calories:500,protein:30,carbs:50,fat:20,updated_at:stamp});
+ test=NutritionCore.put(test,testDay,{id:'b',calories:700,protein:40,carbs:70,fat:25,updated_at:stamp});
+ const add=NutritionCore.totals(test,testDay).calories===1200;
+ test=NutritionCore.put(test,testDay,{id:'a',calories:600,protein:30,carbs:50,fat:20,updated_at:stamp});
+ const edit=NutritionCore.totals(test,testDay).calories===1300;
+ test=NutritionCore.remove(test,testDay,'b','2099-01-02T12:00:00Z');
+ const remove=NutritionCore.totals(test,testDay).calories===600;
+ const merged=NutritionCore.merge(test,{[testDay]:[{id:'b',calories:700,updated_at:stamp}]});
+ const sync=NutritionCore.totals(merged,testDay).calories===600;
+ $('nutritionTestResult').textContent=add&&edit&&remove&&sync?'✓ Counter self-test passed: 500 + 700 = 1200; edit to 600 = 1300; delete 700 = 600; cloud merge retains deletion.':'⚠ Counter self-test failed. Please report this message.';
+};
+
+function weekStart(date){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()-(d.getDay()+6)%7);return d.toLocaleDateString('en-CA');}
+function loadNutritionGoals(){const g=athleteProfile.nutrition_goals||{};for(const [id,k] of [['goalcal','calories'],['goalprotein','protein'],['goalcarbs','carbs'],['goalfat','fat'],['goalnotes','notes']])$(id).value=g[k]??'';renderNutritionGoals();}
+function renderNutritionGoals(){
+ const g=athleteProfile.nutrition_goals||{},t=getDailyTotals(nutritionDayKey());$('goalProgress').replaceChildren();
+ for(const [k,label,unit] of [['calories','Calories','kcal'],['protein','Protein','g'],['carbs','Carbs','g'],['fat','Fat','g']]){
+  const goal=Number(g[k])||0,tile=document.createElement('div');tile.className='goal-tile';
+  const pct=goal?Math.min(100,t[k]/goal*100):0;
+  const small=document.createElement('small');small.textContent=label;
+  const count=document.createElement('div');const b=document.createElement('b');b.textContent=String(Math.round(t[k]));count.append(b,document.createTextNode(' / '+(goal?Math.round(goal):'Not set')+' '+unit));
+  const bar=document.createElement('div');bar.className='progress';const fill=document.createElement('div');fill.style.width=pct+'%';bar.append(fill);tile.append(small,count,bar);$('goalProgress').append(tile);
+ }
+ const date=nutritionDayKey(),activities=Object.values(logs).filter(x=>x.saved&&x.date===date),mins=activities.reduce((n,x)=>n+(Number(x.duration)||0),0);
+ $('nutritionEnergy').textContent=activities.length?`Logged ${activities.length} activities today (${mins} recorded minutes). Exercise energy needs may be higher; this is not a wearable calorie-burn measurement.`:'No activity recorded for this date. Ask your coach about fueling for planned training.';
+}
+$('saveGoals').onclick=()=>{
+ const g={notes:$('goalnotes').value.trim()};for(const [id,k] of [['goalcal','calories'],['goalprotein','protein'],['goalcarbs','carbs'],['goalfat','fat']]){
+  const v=Number($(id).value);if(!Number.isFinite(v)||v<0||v>10000){$('goalStatus').textContent='Enter valid nonnegative goals.';return;}g[k]=v;
+ }
+ athleteProfile.nutrition_goals=g;localStorage.setItem(profileKey,JSON.stringify(athleteProfile));scheduleCloudSave();renderNutritionGoals();$('goalStatus').textContent='Goals saved locally and queued for cloud sync.';
+};
+$('askNutrition').onclick=async()=>{
+ const message=$('nutritionQuestion').value.trim();if(!message)return;
+ const btn=$('askNutrition');btn.disabled=true;$('nutritionAnswer').textContent='Reviewing nutrition and activity…';
+ try{
+  const date=nutritionDayKey(),activities=Object.values(logs).filter(x=>x.saved&&x.date===date).map(x=>({category:x.category||'CrossFit',duration_minutes:x.duration||null,distance_miles:x.distance||null,rpe:x.rpe||null}));
+  const response=await fetch('/api/nutrition/coach',{method:'POST',headers:await v5LegacyAuthHeaders(),body:JSON.stringify({message,goals:athleteProfile.nutrition_goals||{},totals:getDailyTotals(date),activity:{date,activities}})});
+  const data=await response.json();if(!response.ok)throw Error(data.detail||'Coach unavailable');$('nutritionAnswer').textContent=data.answer;
+ }catch(e){$('nutritionAnswer').textContent='Nutrition coach error: '+e.message;}finally{btn.disabled=false;}
+};
+
+function renderLogbook(){const filter=$('logFilter').value,q=$('logSearch').value.trim().toLowerCase();const entries=Object.entries(logs).filter(([_,x])=>x.saved).sort((a,b)=>(b[1].date||'').localeCompare(a[1].date||''));const list=$('logbookList');list.replaceChildren();const visible=entries.filter(([_,x])=>(filter==='All'||(x.category||'CrossFit')===filter)&&JSON.stringify(x).toLowerCase().includes(q));if(!visible.length)list.textContent='No matching workouts yet.';
+ for(const [k,x] of visible){const row=document.createElement('div');row.className='log-entry';const title=document.createElement('strong');title.textContent=(x.category||'CrossFit')+' · '+(x.name||x.day||'Workout');const meta=document.createElement('div');meta.className='log-meta';meta.textContent=(x.date||'Undated')+(x.duration?' · '+x.duration+' min':'')+(x.distance?' · '+x.distance+' mi':'')+(x.lift&&x.liftweight?' · '+x.lift+' '+x.liftweight+' lb':'');const details=document.createElement('div');details.className='muted';details.textContent=[x.load,x.result,x.notes].filter(Boolean).join(' · ').slice(0,600);const remove=document.createElement('button');remove.className='secondary';remove.textContent='Delete';remove.onclick=()=>{if(confirm('Delete this logged activity?')){delete logs[k];localStorage.setItem(KEY,JSON.stringify(logs));scheduleCloudSave();renderLogbook();renderStats();renderNutritionGoals();}};row.append(title,meta,details,remove);list.append(row);}
+ const lifts={};for(const [_,x] of entries){if(!x.lift||!Number(x.liftweight))continue;(lifts[x.lift]??=[]).push(x);}const hist=$('liftHistory');hist.replaceChildren();if(!Object.keys(lifts).length)hist.textContent='Log a lift and working weight to start your history.';for(const [name,items] of Object.entries(lifts)){const d=document.createElement('details');d.className='subsection';const summary=document.createElement('summary');summary.textContent=`${name} · highest logged ${Math.max(...items.map(x=>Number(x.liftweight)))} lb · ${items.length} entries`;d.append(summary);for(const x of items){const line=document.createElement('p');line.textContent=`${x.date||'Undated'} — ${x.liftweight} lb · ${x.liftsets||'?'} sets × ${x.liftreps||'?'} reps ${x.load||''}`;d.append(line);}hist.append(d);}}
+$('logFilter').onchange=renderLogbook;$('logSearch').oninput=renderLogbook;
+$('extraDate').value=new Date().toLocaleDateString('en-CA');
+$('saveExtra').onclick=()=>{const date=$('extraDate').value;if(!date){$('extraStatus').textContent='Choose a date.';return;}const id='extra:'+crypto.randomUUID(),sets=($('extraSets').value||'').match(/(\d+)\s*[x×]\s*(\d+)/i);logs[id]={saved:true,extra:true,date,category:$('extraCategory').value,name:$('extraName').value.trim()||$('extraCategory').value,duration:$('extraDuration').value,distance:$('extraCategory').value==='Running'?$('extraDistance').value:'',lift:$('extraLift').value.trim(),liftweight:$('extraWeight').value,liftsets:sets?.[1]||'',liftreps:sets?.[2]||'',load:$('extraSets').value,notes:$('extraNotes').value};localStorage.setItem(KEY,JSON.stringify(logs));scheduleCloudSave();renderLogbook();renderStats();renderNutritionGoals();$('extraStatus').textContent='Activity saved and queued for sync.';};
+function toggleMenu(open){$('sideNav').classList.toggle('open',open);$('sideShade').hidden=!open;$('menuToggle').setAttribute('aria-expanded',String(open));}
+$('menuToggle').onclick=()=>toggleMenu(true);$('menuClose').onclick=()=>toggleMenu(false);$('sideShade').onclick=()=>toggleMenu(false);document.querySelectorAll('#sideNav a').forEach(a=>a.onclick=()=>{toggleMenu(false);const section=document.querySelector(a.getAttribute('href'));if(section?.tagName==='DETAILS')section.open=true;});
+
+loadNutritionGoals();renderLogbook();
+renderNutrition();
+checkCoach();
+initSupabase();
+
+</script><script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js").catch(() => {}));
+}
+</script>
+
+<script>
+// V5 additions deliberately use separate tables; legacy nutrition remains unchanged.
+fetch('/api/version',{cache:'no-store'}).then(r=>r.json()).then(d=>{if(d.version!=='5.0'){const b=document.getElementById('v5-update-banner');b.hidden=false;b.textContent='Update available or version mismatch: server '+d.version+'; expected 5.0. Reload to update.'}}).catch(()=>{});
+(function(){
+ const $v=id=>document.getElementById(id);
+ let draft=null, chatId=null, chats=[];
+ const safe=e=>String(e?.message||e||'Unknown error');
+ const msg=(id,text)=>{$v(id).textContent=text};
+ async function auth(){
+   if(!sb||!currentUser)throw Error('Sign in to your Supabase account first.');
+   const {data,error}=await sb.auth.getSession();
+   if(error||!data.session?.access_token)throw Error('Session expired. Sign in again.');
+   return data.session.access_token;
+ }
+ async function api(path,options={}){
+   const token=await auth();
+   const response=await fetch(path,{...options,headers:{...(options.headers||{}),'Authorization':'Bearer '+token,...(options.body?{'Content-Type':'application/json'}:{})}});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw Error(data.detail||('HTTP '+response.status));
+   return data;
+ }
+ function localDate(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
+ $v('v5-date').value=localDate();
+ $v('v5-analyze').onclick=async()=>{
+   const text=$v('v5-workout-input').value.trim();if(!text){msg('v5-workout-status','Describe your workout first.');return}
+   const b=$v('v5-analyze');b.disabled=true;msg('v5-workout-status','Analyzing your workout…');$v('v5-draft').hidden=true;
+   try{draft=await api('/api/v5/workout/analyze',{method:'POST',body:JSON.stringify({message:text,context:{athlete_profile:typeof athleteProfile!=='undefined'?athleteProfile:{}}})});
+     msg('v5-analysis',draft.analysis||'Review the details below.');
+     for(const [id,key] of [['v5-title','title'],['v5-duration','duration'],['v5-load','load'],['v5-result','result'],['v5-notes','notes']])$v(id).value=draft[key]||'';
+     $v('v5-category').value=draft.category||'Other';$v('v5-distance').value=draft.distance_miles??'';
+     $v('v5-draft').hidden=false;msg('v5-workout-status','Analysis ready. Review and approve to save.');
+   }catch(e){msg('v5-workout-status','Analysis failed: '+safe(e))}finally{b.disabled=false}
+ };
+ $v('v5-cancel-workout').onclick=()=>{draft=null;$v('v5-draft').hidden=true;msg('v5-workout-status','Draft discarded.')};
+ async function loadWorkouts(){
+   if(!sb||!currentUser){$v('v5-workout-list').textContent='Sign in to see saved workouts.';return}
+   const {data,error}=await sb.from('open_prep_v5_workouts').select('id,performed_on,category,title,details').eq('user_id',currentUser.id).order('performed_on',{ascending:false}).limit(50);
+   if(error){msg('v5-workout-status','Workout history: '+error.message+' (apply V5 SQL migration)');return}
+   const list=$v('v5-workout-list');list.replaceChildren();
+   if(!data.length)list.textContent='No AI-logged workouts yet.';
+   data.forEach(w=>{const box=document.createElement('div');box.className='v5-list-item';
+     const strong=document.createElement('strong');strong.textContent=w.performed_on+' · '+w.title+' ('+w.category+')';box.append(strong);
+     const note=document.createElement('p');note.className='muted';note.textContent=[w.details?.result,w.details?.duration,w.details?.analysis].filter(Boolean).join(' · ').slice(0,600);box.append(note);
+     const del=document.createElement('button');del.className='secondary';del.textContent='Delete';del.onclick=async()=>{if(!confirm('Delete this workout?'))return;const {error}=await sb.from('open_prep_v5_workouts').delete().eq('id',w.id).eq('user_id',currentUser.id);if(error)alert(error.message);else loadWorkouts()};box.append(del);list.append(box)})
+ }
+ $v('v5-save-workout').onclick=async()=>{
+   if(!draft){msg('v5-workout-status','Analyze a workout first.');return}
+   const b=$v('v5-save-workout');b.disabled=true;
+   try{await auth();const row={user_id:currentUser.id,performed_on:$v('v5-date').value||localDate(),category:$v('v5-category').value,title:$v('v5-title').value.trim()||'Workout',details:{analysis:draft.analysis,source:$v('v5-workout-input').value,duration:$v('v5-duration').value,distance_miles:$v('v5-distance').value===''?null:Number($v('v5-distance').value),load:$v('v5-load').value,result:$v('v5-result').value,notes:$v('v5-notes').value}};
+     const {error}=await sb.from('open_prep_v5_workouts').insert(row);if(error)throw Error(error.message);
+     draft=null;$v('v5-draft').hidden=true;$v('v5-workout-input').value='';msg('v5-workout-status','✓ Workout saved to your cloud AI workout log.');await loadWorkouts();
+   }catch(e){msg('v5-workout-status','Save failed: '+safe(e))}finally{b.disabled=false}
+ };
+ function renderChat(){const c=chats.find(x=>x.id===chatId);const el=$v('v5-chat-messages');el.replaceChildren();(c?.messages||[]).forEach(m=>{const d=document.createElement('div');d.className='v5-bubble '+(m.role==='user'?'user':'assistant');d.textContent=m.content;el.append(d)});el.scrollTop=el.scrollHeight}
+ function renderPicker(){const sel=$v('v5-chat-picker');sel.replaceChildren();chats.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.title;sel.append(o)});if(chatId)sel.value=chatId;renderChat()}
+ async function loadChats(){if(!sb||!currentUser)return;const {data,error}=await sb.from('open_prep_v5_chats').select('id,title,messages,updated_at').eq('user_id',currentUser.id).order('updated_at',{ascending:false}).limit(30);if(error){msg('v5-chat-status',error.message+' (apply V5 SQL migration)');return}chats=data||[];if(!chats.some(c=>c.id===chatId))chatId=chats[0]?.id||null;renderPicker()}
+ $v('v5-chat-picker').onchange=()=>{chatId=$v('v5-chat-picker').value;renderChat()};
+ $v('v5-new-chat').onclick=()=>{chatId=null;renderChat();msg('v5-chat-status','New conversation ready. Send a message to save it.')};
+ $v('v5-chat-send').onclick=async()=>{
+   const text=$v('v5-chat-input').value.trim();if(!text)return;const b=$v('v5-chat-send');b.disabled=true;msg('v5-chat-status','Coach is thinking…');
+   try{await auth();const existing=chats.find(c=>c.id===chatId);const history=existing?.messages||[];
+     const result=await api('/api/v5/chat',{method:'POST',body:JSON.stringify({message:text,history:history.slice(-12),context:{athlete_profile:typeof athleteProfile!=='undefined'?athleteProfile:{}}})});
+     const messages=[...history,{role:'user',content:text},{role:'assistant',content:result.answer}].slice(-100);
+     if(existing){const {error}=await sb.from('open_prep_v5_chats').update({messages,updated_at:new Date().toISOString()}).eq('id',existing.id).eq('user_id',currentUser.id);if(error)throw Error(error.message)}
+     else{const {data,error}=await sb.from('open_prep_v5_chats').insert({user_id:currentUser.id,title:text.slice(0,55),messages}).select('id').single();if(error)throw Error(error.message);chatId=data.id}
+     $v('v5-chat-input').value='';await loadChats();msg('v5-chat-status','✓ Conversation saved to your account.');
+   }catch(e){msg('v5-chat-status','Chat failed: '+safe(e))}finally{b.disabled=false}
+ };
+ $v('v5-whoop-connect').onclick=async()=>{try{msg('v5-whoop-status','Starting secure WHOOP authorization…');const data=await api('/api/v5/whoop/start');location.assign(data.url)}catch(e){msg('v5-whoop-status',safe(e))}};
+ $v('v5-whoop-refresh').onclick=async()=>{
+   try{msg('v5-whoop-status','Loading WHOOP cloud statistics…');const d=await api('/api/v5/whoop/summary');const score=d.recovery?.score||{},cycle=d.cycle?.score||{},sleep=d.sleep?.score||{},workout=d.workout?.score||{};
+     const items=[['Recovery',score.recovery_score,'%'],['Resting HR',score.resting_heart_rate,' bpm'],['HRV',score.hrv_rmssd_milli,' ms'],['SpO₂',score.spo2_percentage,'%'],['Day strain',cycle.strain,''],['Sleep performance',sleep.sleep_performance_percentage,'%'],['Workout strain',workout.strain,'']];
+     const el=$v('v5-whoop-stats');el.replaceChildren();items.forEach(([name,val,unit])=>{const div=document.createElement('div');div.className='v5-metric';const label=document.createElement('span');label.textContent=name;const value=document.createElement('b');value.textContent=val==null?'—':(typeof val==='number'?Math.round(val*10)/10:val)+unit;div.append(label,value);el.append(div)});
+     msg('v5-whoop-status','✓ WHOOP statistics loaded. These are not live Bluetooth readings.');
+   }catch(e){msg('v5-whoop-status','WHOOP: '+safe(e))}
+ };
+ $v('v5-whoop-disconnect').onclick=async()=>{if(!confirm('Disconnect WHOOP from Open Prep?'))return;try{await api('/api/v5/whoop/disconnect',{method:'DELETE'});$v('v5-whoop-stats').replaceChildren();msg('v5-whoop-status','Disconnected. You may also revoke access in WHOOP.') }catch(e){msg('v5-whoop-status',safe(e))}};
+ if(new URLSearchParams(location.search).get('whoop')==='connected')msg('v5-whoop-status','WHOOP authorized. Press Refresh stats.');
+ // Cloud account changes happen asynchronously; refresh V5 data on sign-in.
+ setInterval(()=>{const id=currentUser?.id||null;if(id!==window.__v5LastUser){window.__v5LastUser=id;if(id){loadWorkouts();loadChats()}else{$v('v5-workout-list').textContent='Sign in to see saved workouts.';chats=[];chatId=null;renderPicker()}}},1000);
+})();
+</script>
+</body></html>
